@@ -1,4 +1,4 @@
-import 'dotenv/config';
+import 'dotenv/config.js';
 import { defineConfig } from "drizzle-kit";
 
 if (!process.env.DATABASE_URL) {
@@ -6,7 +6,7 @@ if (!process.env.DATABASE_URL) {
 }
 
 export default defineConfig({
-  schema: "./src/schema.js",
+  schema: "./src/db/schema.js",
   out: "./drizzle",
   dialect: "postgresql",
   dbCredentials: {
