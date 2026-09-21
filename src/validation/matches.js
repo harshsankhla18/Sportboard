@@ -6,7 +6,7 @@ export const MATCH_STATUS = {
   FINISHED: "finished",
 };
 
-const isoDateString = z.iso.datetime();
+const isoDateString = z.iso.datetime({ offset: true });
 
 export const listMatchesQuerySchema = z.object({
   limit: z.coerce.number().int().positive().max(100).optional(),
