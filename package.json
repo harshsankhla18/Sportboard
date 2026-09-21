@@ -20,6 +20,8 @@
     "drizzle-orm": "^0.45.2",
     "express": "^5.2.1",
     "pg": "^8.23.0",
+    "ws": "^8.21.3",
+    "wscat": "^6.1.0",
     "zod": "^4.6.5"
   },
   "devDependencies": {

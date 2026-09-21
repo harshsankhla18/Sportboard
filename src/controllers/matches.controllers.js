@@ -28,7 +28,10 @@ const createMatch = async (req, res) => {
                 ),
             })
             .returning();
-
+            if(res.app.locals.broadcastMatchCreated){
+                res.app.locals.broadcastMatchCreated(event);
+                console.log('brodcastMatchCreated', event);
+            }
         return res.status(201).json(new ApiResponse(201, event));
     }catch (error) {
         // const databaseMessage = error.cause?.message;
