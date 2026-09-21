@@ -29,6 +29,9 @@ export function attachWebSocketServer(server) {
             ws.ping();
         })
     },30000);
+    const clearLivenessInterval = () => clearInterval(interval);
+    wss.on('close', clearLivenessInterval);
+    server.on('close', clearLivenessInterval);
     function broadcastMatchCreated(match){
      broadcastToAll(wss, {type:"match_created",data:match});
     }
