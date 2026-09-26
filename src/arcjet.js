@@ -28,15 +28,18 @@ export const wsArcjet = arcjetKey ?
 export function securityMiddleware() {
     return async (req, res, next) => {
         if(!httpArcjet) return next();
-
         try {
             const decision = await httpArcjet.protect(req);
-
+            if (decision.isErrored()) {
+                console.error('Arcjet returned ERROR conclusion');
+                return res.status(503).json({
+                    error: 'Service Unavailable'
+                });
+            }
             if(decision.isDenied()) {
                 if(decision.reason.isRateLimit()) {
                     return res.status(429).json({ error: 'Too many requests.' });
                 }
-
                 return res.status(403).json({ error: 'Forbidden.' });
             }
         } catch (e) {
