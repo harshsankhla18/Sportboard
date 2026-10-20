@@ -10,7 +10,7 @@ const PORT  = Number(process.env.PORT || 8000);
 const HOST = process.env.HOST || '0.0.0.0';
 
 app.use(express.json());
-app.use(securityMiddleware())
+// app.use(securityMiddleware())
 const server = http.createServer(app);
 
 
