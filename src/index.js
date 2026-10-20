@@ -14,8 +14,9 @@ app.use(express.json());
 const server = http.createServer(app);
 
 
-const {broadcastMatchCreated} = attachWebSocketServer(server);
+const {broadcastMatchCreated, broadcastCommentary} = attachWebSocketServer(server);
 app.locals.broadcastMatchCreated = broadcastMatchCreated;
+app.locals.broadcastCommentary = broadcastCommentary;
 
 app.get('/', (req, res) => {
   res.json({ message: 'Hello from Sportboard server!' });

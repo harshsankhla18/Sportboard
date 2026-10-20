@@ -33,6 +33,10 @@ const createCommentary = async (req, res) => {
         matchId: parsedParams.data.id,
       })
       .returning();
+    res.app.locals.broadcastCommentary?.(
+      createdCommentary.matchId,
+      createdCommentary,
+    );
 
     return res
       .status(201)
