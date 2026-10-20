@@ -41,7 +41,7 @@ const createMatch = async (req, res) => {
     }
 };
  const  listMatches = async (req,res) => {
-     const parsedData = listMatchesQuerySchema.safeParse(req.body);
+     const parsedData = listMatchesQuerySchema.safeParse(req.query);
      if (!parsedData.success) {
          return res.status(400).json(
              new ApiResponse(400, parsedData.error.issues, "Invalid payload"),
@@ -55,4 +55,5 @@ const createMatch = async (req, res) => {
          res.status(500).json(new ApiResponse(500, null, error.message));
      }
  }
+
 export {createMatch, listMatches};
