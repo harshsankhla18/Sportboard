@@ -33,12 +33,10 @@ const createCommentary = async (req, res) => {
         matchId: parsedParams.data.id,
       })
       .returning();
-    res.app.locals.broadcastCommentary?.(
-      createdCommentary.matchId,
-      createdCommentary,
-    );
-
-    return res
+      if(res.app.locals.broadcastCommentary) {
+        res.app.locals.broadcastCommentary(createdCommentary.matchId,createdCommentary);
+      }
+      return res
       .status(201)
       .json(new ApiResponse(201, createdCommentary));
   } catch (error) {
