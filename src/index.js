@@ -1,3 +1,5 @@
+import swaggerUi from "swagger-ui-express";
+import swaggerJsdoc from "swagger-jsdoc";
 import express from 'express';
 import {matchRouter} from "./routes/matches.routes.js";
 import http from "http";
@@ -10,6 +12,22 @@ const PORT  = Number(process.env.PORT || 8000);
 const HOST = process.env.HOST || '0.0.0.0';
 
 app.use(express.json());
+const swaggerSpec = swaggerJsdoc({
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Sportboard API",
+      version: "1.0.0",
+      description: "API documentation for Sportboard",
+    },
+    servers: [
+      { url: "https://sportboard.onrender.com" },
+    ],
+  },
+  apis: ["./src/routes/*.js"],
+});
+
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // app.use(securityMiddleware())
 const server = http.createServer(app);
 
