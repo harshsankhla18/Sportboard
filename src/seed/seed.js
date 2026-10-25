@@ -151,6 +151,9 @@ async function insertCommentary(matchId, entry) {
     if (entry.team !== undefined && entry.team !== null) {
         payload.team = entry.team;
     }
+    if (entry.scoreDelta !== undefined && entry.scoreDelta !== null) {
+        payload.scoreDelta = entry.scoreDelta;
+    }
     if (entry.metadata !== undefined && entry.metadata !== null) {
         payload.metadata = entry.metadata;
     }

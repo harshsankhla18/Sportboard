@@ -8,6 +8,7 @@ This repository contains the backend and a sample commentary seeder; it does not
 
 - Create and list matches.
 - Add and retrieve commentary for an individual match.
+- Increment match scores from supported scoring commentary events and broadcast changes to connected clients.
 - Persist match and commentary data in PostgreSQL, with Neon’s serverless driver.
 - Publish match-specific commentary to subscribed WebSocket clients and broadcast new-match events to all connected clients.
 - Check WebSocket connection liveness with periodic ping/pong heartbeats.
@@ -189,6 +190,39 @@ Adds commentary to the specified match. Required values are `minute`, `sequence`
 }
 ```
 
+#### Score updates from commentary
+
+Score updates are event-driven increments, not a separate score feed. When commentary is posted, the API checks whether it is a supported scoring event. If so, it increments the matching score in the `matches` table and broadcasts the updated match to connected WebSocket clients as a `score_updated` message. The normal `commentary` message is also broadcast to clients subscribed to that match.
+
+The backend infers points from `sport`, `eventType`, and `team`:
+
+| Sport | Scoring event types | Points |
+| --- | --- | --- |
+| `football` | `goal` | 1 |
+| `cricket` | `four`, `boundary` | 4 |
+| `cricket` | `six` | 6 |
+| `basketball` | `basket`, `two_pointer` | 2 |
+| `basketball` | `three`, `three_pointer` | 3 |
+| `basketball` | `free_throw` | 1 |
+
+For inferred scoring, `team` must match the match's home or away team name (case-insensitive). Other event types, or an unrecognized team name, are saved as commentary without changing the score.
+
+For scoring events that do not fit those rules, a caller can provide an explicit `scoreDelta`. Each side must be a non-negative integer, and at least one side must be greater than zero. An explicit delta takes precedence over inference:
+
+```json
+{
+  "minute": 23,
+  "sequence": 4,
+  "period": "1st half",
+  "eventType": "goal",
+  "team": "Home FC",
+  "message": "A goal for the home side.",
+  "scoreDelta": { "home": 1, "away": 0 }
+}
+```
+
+Processed deltas are saved in the commentary record's `metadata.scoreDelta`. The sample seeder forwards each event's `scoreDelta` to the API. Existing commentary is not replayed or counted when the backend starts; only newly posted commentary changes scores. This is not an external live-sports feed or a manual score-edit endpoint.
+
 ## WebSocket protocol
 
 Connect to `ws://localhost:8000/ws` locally. Use `wss://<your-host>/ws` in production when the site is served over HTTPS.
@@ -276,7 +310,7 @@ Arcjet integration is present in `src/arcjet.js`. The HTTP middleware is current
 1. **Separate local and production environments.** Keep different `DATABASE_URL` and `API_URL` values, and make the target environment obvious before running the seeder.
 2. **Add automated tests.** `npm test` is currently a placeholder. Add unit tests for validation/status logic and integration tests for routes, persistence, and broadcasts using a test database.
 3. **Complete Arcjet opt-out behavior.** Make the no-key case intentional and safe (the current module throws when `ARCJET_KEY` is missing despite nullable-client branches), and gate both HTTP and WebSocket protection consistently if Arcjet is optional.
-4. **Add score/status operations.** The schema contains scores and status, but there are no active routes for score updates or ending a match. Status is only calculated on match creation.
+4. **Add match lifecycle operations.** Scores increment from supported scoring commentary events, but there is no route for ending a match or changing its status after creation.
 5. **Improve query behavior.** Add cursor-based pagination and stable ordering (for example by `created_at` plus `id`); consider ordering commentary by match period/sequence rather than insertion time.
 6. **Scale WebSocket delivery.** The current in-process pub/sub and ping/pong heartbeat cover single-instance event delivery and connection liveness. Use shared pub/sub (such as Redis) if running more than one server instance. Add authentication/authorization and an allowed-origin policy if the app is exposed publicly.
 7. **Tighten reliability and observability.** Add structured logging, graceful shutdown, consistent central error handling, request limits, and health/readiness endpoints. Avoid returning raw database error messages to clients in production.
