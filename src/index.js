@@ -12,6 +12,15 @@ const PORT  = Number(process.env.PORT || 8000);
 const HOST = process.env.HOST || '0.0.0.0';
 
 app.use(express.json());
+
+// CORS — allow all origins so the frontend can reach the API from any host
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  if (req.method === 'OPTIONS') return res.sendStatus(204);
+  next();
+});
 const swaggerSpec = swaggerJsdoc({
   definition: {
     openapi: "3.0.0",
