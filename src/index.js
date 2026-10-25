@@ -11,8 +11,6 @@ const app = express();
 const PORT  = Number(process.env.PORT || 8000);
 const HOST = process.env.HOST || '0.0.0.0';
 
-app.use(express.json());
-
 // CORS — allow all origins so the frontend can reach the API from any host
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -21,6 +19,9 @@ app.use((req, res, next) => {
   if (req.method === 'OPTIONS') return res.sendStatus(204);
   next();
 });
+
+app.use(express.json());
+
 const swaggerSpec = swaggerJsdoc({
   definition: {
     openapi: "3.0.0",
@@ -41,8 +42,13 @@ app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 const server = http.createServer(app);
 
 
-const {broadcastMatchCreated, broadcastCommentary} = attachWebSocketServer(server);
+const {
+  broadcastMatchCreated,
+  broadcastMatchScoreUpdated,
+  broadcastCommentary,
+} = attachWebSocketServer(server);
 app.locals.broadcastMatchCreated = broadcastMatchCreated;
+app.locals.broadcastMatchScoreUpdated = broadcastMatchScoreUpdated;
 app.locals.broadcastCommentary = broadcastCommentary;
 
 app.get('/', (req, res) => {
