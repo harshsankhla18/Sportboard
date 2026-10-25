@@ -143,7 +143,7 @@ export function attachWebSocketServer(server) {
     }
 
     function broadcastMatchScoreUpdated(match) {
-        broadcastToAll(wss, { type: 'score_updated', data: match });
+        broadcastToMatch(match.id, { type: 'score_updated', data: match });
     }
 
     function broadcastCommentary(matchId, comment) {

@@ -245,6 +245,14 @@ New commentary is sent to subscribers as:
 { "type": "commentary", "data": { "...": "commentary record" } }
 ```
 
+When newly posted scoring commentary changes a match score, the backend updates the match and sends the updated match to subscribers of that match:
+
+```json
+{ "type": "score_updated", "data": { "...": "updated match record" } }
+```
+
+The sample frontend subscribes to the selected match and applies `score_updated` messages to its match cards, live sidebar, and open match details. It loads the match list through the REST API; it does not currently poll the full list every 10 minutes. Matches that are not subscribed to do not receive live score events.
+
 New matches are broadcast to every connected WebSocket client as:
 
 ```json
